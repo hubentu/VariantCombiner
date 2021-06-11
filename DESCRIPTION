@@ -1,0 +1,23 @@
+Package: VariantCombiner
+Title: Combine VCF variants
+Version: 0.0.1
+Authors@R: 
+    person(given = "Qiang",
+           family = "Hu",
+           role = c("aut", "cre"),
+           email = "qiang.hu@roswellpark.org")
+Description: A tool to merge VCF variants from different callers.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Depends: VariantAnnotation
+Imports: GenomicRanges, S4Vectors, abind, dplyr, tidyr, methods,
+         GenomeInfoDb, MatrixGenerics, IRanges
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
