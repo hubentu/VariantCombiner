@@ -29,8 +29,8 @@ strelka_snv <- function(vcf){
     AD_alt <- left_join(mcount0, mcount[,-c(2:3)], by = c("rn" = "rn", "Mut" = "Allele"))
     AD_alt <- pivot_wider(AD_alt[, c("rn", "TN", "value")], id_cols = "rn", names_from = "TN")
     
-    AD <- abind(data.frame(AD_ref[, c("TUMOR", "NORMAL")]),
-                data.frame(AD_alt[, c("TUMOR", "NORMAL")]), along = 3)
+    AD <- abind(data.frame(AD_ref[, c("NORMAL", "TUMOR")]),
+                data.frame(AD_alt[, c("NORMAL", "TUMOR")]), along = 3)
 
     hdf <- header(header(vcf))$FORMAT
     f <- DataFrame(Number = c(1, "R"),
@@ -63,9 +63,9 @@ strelka_indel <- function(vcf){
     AD_n1 <- geno(vcf)$TIR[,,1][, "NORMAL"]
     AD_n0 <- geno(vcf)$DP[,"NORMAL"] - AD_n1
 
-    AD <- abind(cbind(AD_t0, AD_n0),
-                cbind(AD_t1, AD_n1), along = 3)
-    colnames(AD) <- c("TUMOR", "NORMAL")
+    AD <- abind(cbind(AD_n0, AD_t0),
+                cbind(AD_n1, AD_t1), along = 3)
+    colnames(AD) <- c("NORMAL", "TUMOR")
     
     hdf <- header(header(vcf))$FORMAT
     f <- DataFrame(Number = c(1, "R"),
