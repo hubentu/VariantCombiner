@@ -207,7 +207,7 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORM
     df_h$fileformat <- sort(df_h$fileformat)[1,,drop = FALSE]
     
     VH <- VCFHeader(reference = ref, samples = ids, header = DataFrameList(df_h))
-    vcf <- VCF(rowRanges = rR, colData = cData, exptData = list(header = VH),
+    vcf <- VCF(rowRanges = rR[,1], colData = cData, exptData = list(header = VH),
                fixed = f_m, info = info_m, geno = geno_var_u, collapsed = FALSE)
     return(vcf)
 }
