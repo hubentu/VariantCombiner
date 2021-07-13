@@ -69,10 +69,10 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORM
     f2 <- fixed(vars[[2]])
     f1$ALT <- as.character(f1$ALT)
     f2$ALT <- as.character(f2$ALT)
-    if(sources[1]!="" & !is.null(sources[1])){
+    if(sources[1]!="" & !is.null(sources[1]) & !grepl(sources[1], f1$FILTER[1])){
         f1$FILTER <- paste(sources[1], f1$FILTER, sep = "_")
     }
-    if(sources[2]!="" & !is.null(sources[2])){
+    if(sources[2]!="" & !is.null(sources[2]) & !grepl(sources[2], f2$FILTER[1])){
         f2$FILTER <- paste(sources[2], f2$FILTER, sep = "_")
     }
     f1u <- f1[pid1 %in% setdiff(pid1, vcom),]
@@ -87,13 +87,13 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORM
     
     ## INFO
     info1 <- info(vars[[1]])
-    if(sources[1]!="" & !is.null(sources[1])){
+    if(sources[1]!="" & !is.null(sources[1]) & !grepl(sources[1], colnames(info1)[1])){
         colnames(info1) <- paste(sources[1], colnames(info1), sep = "_")
     }
     info1 <- DataFrame(varId = pid1, info1)
 
     info2 <- info(vars[[2]])
-    if(sources[1]!="" & !is.null(sources[1])){
+    if(sources[1]!="" & !is.null(sources[1]) & !grepl(sources[2], colnames(info2)[1])){
         colnames(info2) <- paste(sources[2], colnames(info2), sep = "_")
     }
     info2 <- DataFrame(varId = pid2, info2)
@@ -189,10 +189,10 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORM
     df_com <- list()
     for(i in seq(df_n)){
         if(df_n[i] == "INFO"){
-            if(sources[1]!="" & !is.null(sources[1])){
+            if(sources[1]!="" & !is.null(sources[1]) & !grepl(sources[1], rownames(df1[["INFO"]])[1])){
                 rownames(df1[["INFO"]]) <- paste(sources[1], rownames(df1[["INFO"]]), sep = "_")
             }
-            if(sources[2]!="" & !is.null(sources[2])){
+            if(sources[2]!="" & !is.null(sources[2]) & !grepl(sources[2], rownames(df2[["INFO"]])[1])){
                 rownames(df2[["INFO"]]) <- paste(sources[2], rownames(df2[["INFO"]]), sep = "_")
             }
         }
@@ -204,7 +204,8 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORM
     }
     names(df_com) <- df_n
     df_h <- c(df_com, as.list(df1_u), as.list(df2_u))
-
+    df_h$fileformat <- sort(df_h$fileformat)[1,,drop = FALSE]
+    
     VH <- VCFHeader(reference = ref, samples = ids, header = DataFrameList(df_h))
     vcf <- VCF(rowRanges = rR, colData = cData, exptData = list(header = VH),
                fixed = f_m, info = info_m, geno = geno_var_u, collapsed = FALSE)
