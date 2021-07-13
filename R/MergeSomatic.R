@@ -55,7 +55,7 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORM
     
     ## rowRanges
     idx2 <- match(setdiff(pid2, pid1), pid2)
-    rR <- c(rowRanges(vars[[1]]), rowRanges(vars[[2]])[idx2])
+    rR <- c(rowRanges(vars[[1]])[,1], rowRanges(vars[[2]])[idx2, 1])
     names(rR) <- c(pid1, setdiff(pid2, pid1))
     rR <- sortSeqlevels(rR)
     rR <- sort(rR)
@@ -207,7 +207,7 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORM
     df_h$fileformat <- sort(df_h$fileformat)[1,,drop = FALSE]
     
     VH <- VCFHeader(reference = ref, samples = ids, header = DataFrameList(df_h))
-    vcf <- VCF(rowRanges = rR[,1], colData = cData, exptData = list(header = VH),
+    vcf <- VCF(rowRanges = rR, colData = cData, exptData = list(header = VH),
                fixed = f_m, info = info_m, geno = geno_var_u, collapsed = FALSE)
     return(vcf)
 }
