@@ -58,9 +58,9 @@ strelka_indel <- function(vcf){
     if(is(vcf, "CollapsedVCF")){
         vcf <- expand(vcf)
     }
-    AD_t1 <- geno(vcf)$TIR[,,1][, "TUMOR"]
+    AD_t1 <- geno(vcf)$TIR[,"TUMOR",1]
     AD_t0 <- geno(vcf)$DP[,"TUMOR"] - AD_t1
-    AD_n1 <- geno(vcf)$TIR[,,1][, "NORMAL"]
+    AD_n1 <- geno(vcf)$TIR[,"NORMAL",1]
     AD_n0 <- geno(vcf)$DP[,"NORMAL"] - AD_n1
 
     AD <- abind(cbind(AD_n0, AD_t0),

@@ -19,7 +19,8 @@
 #' @return A merged VCF object
 #' @export
 
-MergeSomatic <- function(vcf1, vcf2, sources, GENO, id_t = "TUMOR", id_n = "NORMAL", pass_only = FALSE){
+MergeSomatic <- function(vcf1, vcf2, sources, GENO,
+                         id_t = "TUMOR", id_n = "NORMAL", pass_only = FALSE){
     if(is.character(vcf1)){
         v1 <- expand(readVcf(vcf1))
         v2 <- expand(readVcf(vcf2))

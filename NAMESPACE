@@ -3,6 +3,7 @@
 export(MergeSomatic)
 export(strelka_indel)
 export(strelka_snv)
+export(vcf2sj)
 import(VariantAnnotation)
 importFrom(GenomeInfoDb,sortSeqlevels)
 importFrom(GenomicRanges,ranges)
