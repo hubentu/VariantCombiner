@@ -19,7 +19,7 @@
 #' @return A merged VCF object
 #' @export
 
-MergeSomatic <- function(vcf1, vcf2, sources, GENO,
+MergeSomatic <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1),
                          id_t = "TUMOR", id_n = "NORMAL", pass_only = FALSE){
     if(is.character(vcf1)){
         v1 <- expand(readVcf(vcf1))
@@ -33,7 +33,8 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO,
         v2 <- v2[fixed(v2)$FILTER == "PASS",]
     }
     vars <- list(v1, v2)
-    ids <- c(TUMOR = id_t, NORMAL = id_n)
+    ids <- c(id_t, id_n)
+    names(ids) <- c("TUMOR", "NORMAL")
     vars <- lapply(vars, function(x){
         if(ncol(x)==2){
             if(any(is.na(match(ids, colnames(x))))){
