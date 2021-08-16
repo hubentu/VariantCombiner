@@ -202,7 +202,12 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1),
             df1[["FORMAT"]] <- df1[["FORMAT"]][rownames(df1[["FORMAT"]]) %in% names(GENO)[GENO == 1],]
             df2[["FORMAT"]] <- df2[["FORMAT"]][rownames(df2[["FORMAT"]]) %in% names(GENO)[GENO == 2],]
         }
-        df_com[[i]] <- unique(rbind(df1[[df_n[i]]], df2[[df_n[i]]]))
+        if(df_n[i] == "contig"){
+            ## only use the first contig
+            df_com[[i]] <- df1[[df_n[i]]]
+        }else{
+            df_com[[i]] <- unique(rbind(df1[[df_n[i]]], df2[[df_n[i]]]))
+        }
     }
     names(df_com) <- df_n
     df_h <- c(df_com, as.list(df1_u), as.list(df2_u))
