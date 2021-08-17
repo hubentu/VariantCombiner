@@ -32,6 +32,11 @@ MergeSomatic <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1),
         v1 <- v1[fixed(v1)$FILTER == "PASS",]
         v2 <- v2[fixed(v2)$FILTER == "PASS",]
     }
+    if(length(v1) == 0){
+        return(v2)
+    }else if(length(v2) == 0){
+        return(v1)
+    }
     vars <- list(v1, v2)
     ids <- c(id_t, id_n)
     names(ids) <- c("TUMOR", "NORMAL")
