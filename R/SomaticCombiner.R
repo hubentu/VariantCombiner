@@ -46,8 +46,9 @@ SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1
             x
         }
     })
-    if(any(lengths(vars) == 0)){
-        return(vars[[lengths(vars)!=0]])
+    vn <- unlist(lapply(vars, nrow))
+    if(any(vn == 0)){
+        return(vars[[which(vn!=0)]])
     }
 
     ## shared variants

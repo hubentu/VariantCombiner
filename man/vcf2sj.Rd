@@ -4,10 +4,14 @@
 \alias{vcf2sj}
 \title{annotated VCF to SJ format}
 \usage{
-vcf2sj(avcf)
+vcf2sj(avcf, tidx = 1, nidx = 2)
 }
 \arguments{
-\item{avcf}{A vcf from VEP}
+\item{avcf}{A vcf from VEP.}
+
+\item{tidx}{The tumor sample index.}
+
+\item{nidx}{The normal sample index.}
 }
 \description{
 annotated VCF to SJ format
