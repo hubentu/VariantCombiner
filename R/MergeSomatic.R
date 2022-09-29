@@ -1,4 +1,4 @@
-#' SomaticCombiner
+#' MergeSomatic
 #'
 #' To merge two VCFs from different somatic callers.
 #' @import VariantAnnotation
@@ -19,7 +19,7 @@
 #' @return A merged VCF object
 #' @export
 
-SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1),
+MergeSomatic <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1),
                          id_t = "TUMOR", id_n = "NORMAL", pass_only = FALSE){
     if(is.character(vcf1)){
         v1 <- expand(readVcf(vcf1))
@@ -32,6 +32,13 @@ SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1
         v1 <- v1[fixed(v1)$FILTER == "PASS",]
         v2 <- v2[fixed(v2)$FILTER == "PASS",]
     }
+
+    ## fix ids
+    pid1 <- paste0(seqnames(v1), ":", start(v1), "_", ref(v1), "/", alt(v1))
+    pid2 <- paste0(seqnames(v2), ":", start(v2), "_", ref(v2), "/", alt(v2))
+    rownames(v1) <- pid1
+    rownames(v2) <- pid2
+
     vars <- list(v1, v2)
     ids <- c(id_t, id_n)
     names(ids) <- c("TUMOR", "NORMAL")
@@ -50,9 +57,8 @@ SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1
         return(vars[[lengths(vars)!=0]])
     }
 
-    ## shared variants
-    pid1 <- paste0(seqnames(v1), ":", ranges(v1), "_", ref(v1), "/", alt(v1))
-    pid2 <- paste0(seqnames(v2), ":", ranges(v2), "_", ref(v2), "/", alt(v2))
+    ## pid1 <- rownames(v1)
+    ## pid2 <- rownames(v2)
     vcom <- intersect(pid1, pid2)
     message("Unique variants in vcf1: ", length(setdiff(pid1, vcom)))
     message("Unique variants in vcf2: ", length(setdiff(pid2, vcom)))

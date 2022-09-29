@@ -17,21 +17,50 @@
 #' @param id_n The normal/control sample ID.
 #' @param pass_only If TRUE, only PASS variants will be merged.
 #' @return A merged VCF object
+#' @importClassesFrom IRanges CompressedList
 #' @export
 
 SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1),
                          id_t = "TUMOR", id_n = "NORMAL", pass_only = FALSE){
+    ## if(is.character(vcf1)){
+    ##     v1 <- expand(readVcf(vcf1))
+    ##     v2 <- expand(readVcf(vcf2))
+    ## }else if (is(vcf1, "VCF")){
+    ##     v1 <- expand(vcf1)
+    ##     v2 <- expand(vcf2)
+    ## }
+
     if(is.character(vcf1)){
-        v1 <- expand(readVcf(vcf1))
-        v2 <- expand(readVcf(vcf2))
-    }else if (is(vcf1, "VCF")){
-        v1 <- expand(vcf1)
-        v2 <- expand(vcf2)
+        vcf1 <- readVcf(vcf1)
     }
+    if(is.character(vcf2)){
+        vcf2 <- readVcf(vcf2)
+    }
+
     if(pass_only){
-        v1 <- v1[fixed(v1)$FILTER == "PASS",]
-        v2 <- v2[fixed(v2)$FILTER == "PASS",]
+        vcf1 <- vcf1[fixed(vcf1)$FILTER == "PASS",]
+        vcf2 <- vcf2[fixed(vcf2)$FILTER == "PASS",]
     }
+
+    if(nrow(vcf1) == 0 & nrow(vcf2) == 0){
+        return(vcf1)
+    }else if(nrow(vcf1) == 0){
+        return(vcf2)
+    }else if(nrow(vcf2) == 0){
+        return(vcf1)
+    }
+    
+    ## v1 <- unique(expand(vcf1))
+    ## v2 <- unique(expand(vcf2))
+    v1 <- expand(vcf1)
+    v2 <- expand(vcf2)
+
+    ## fix ids
+    pid1 <- paste0(seqnames(v1), ":", start(v1), "_", ref(v1), "/", alt(v1))
+    pid2 <- paste0(seqnames(v2), ":", start(v2), "_", ref(v2), "/", alt(v2))
+    rownames(v1) <- pid1
+    rownames(v2) <- pid2
+
     vars <- list(v1, v2)
     ids <- c(id_t, id_n)
     names(ids) <- c("TUMOR", "NORMAL")
@@ -52,8 +81,8 @@ SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1
     }
 
     ## shared variants
-    pid1 <- paste0(seqnames(v1), ":", ranges(v1), "_", ref(v1), "/", alt(v1))
-    pid2 <- paste0(seqnames(v2), ":", ranges(v2), "_", ref(v2), "/", alt(v2))
+    ## pid1 <- paste0(seqnames(v1), ":", start(v1), "_", ref(v1), "/", alt(v1))
+    ## pid2 <- paste0(seqnames(v2), ":", start(v2), "_", ref(v2), "/", alt(v2))
     vcom <- intersect(pid1, pid2)
     message("Unique variants in vcf1: ", length(setdiff(pid1, vcom)))
     message("Unique variants in vcf2: ", length(setdiff(pid2, vcom)))
@@ -105,10 +134,18 @@ SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1
     info2 <- DataFrame(varId = pid2, info2)
 
     info_m <- merge(info1, info2, by = "varId", all = TRUE)
-    rownames(info_m) <- info_m$varId
-    info_m <- info_m[match(vid_u, rownames(info_m)),]
+    ## rownames(info_m) <- info_m$varId
+    info_m <- info_m[match(vid_u, info_m$varId),]
     info_m <- info_m[, -match("varId", colnames(info_m))]
+    rownames(info_m) <- vid_u
     info_m <- DataFrame(info_m)
+
+    lists <- sapply(info_m, function(x){
+        is.list(x) || is(x, "List")
+    })
+    infoL <- lapply(info_m[lists], function(x)as(x, "CompressedList"))
+    info_m[lists] <- DataFrame(infoL)
+    
     
     ## GENO
     ## shared

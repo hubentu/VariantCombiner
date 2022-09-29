@@ -14,20 +14,25 @@ strelka_snv <- function(vcf){
     if(is(vcf, "CollapsedVCF")){
         vcf <- expand(vcf)
     }
-    Ref <- as.character(ref(vcf))
-    Mut <- unlist(lapply(alt(vcf), function(x)as.character(x)[1]))
-    
-    AU <- geno(vcf)$AU[,,1, drop=F]
-    CU <- geno(vcf)$CU[,,1, drop=F]
-    GU <- geno(vcf)$GU[,,1, drop=F]
-    TU <- geno(vcf)$TU[,,1, drop=F]
-    mcount0 <- data.frame(rn = rownames(vcf), Ref, Mut, A=AU, C=CU, G=GU, T=TU)
-    mcount <- pivot_longer(mcount0, cols = -c(1:3))
-    mcount <- separate(mcount, name, c("Allele", "TN"), sep = "\\.", extra = "drop")
-    AD_ref <- left_join(mcount0, mcount[,-c(2:3)], by = c("rn" = "rn", "Ref" = "Allele"))
-    AD_ref <- pivot_wider(AD_ref[, c("rn", "TN", "value")], id_cols = "rn", names_from = "TN")
-    AD_alt <- left_join(mcount0, mcount[,-c(2:3)], by = c("rn" = "rn", "Mut" = "Allele"))
-    AD_alt <- pivot_wider(AD_alt[, c("rn", "TN", "value")], id_cols = "rn", names_from = "TN")
+
+    if(nrow(vcf) == 0){
+        AD_ref <- AD_alt <- data.frame(NORMAL=integer(), TUMOR=integer())
+    } else {
+        Ref <- as.character(ref(vcf))
+        Mut <- unlist(lapply(alt(vcf), function(x)as.character(x)[1]))
+        
+        AU <- geno(vcf)$AU[,,1, drop=F]
+        CU <- geno(vcf)$CU[,,1, drop=F]
+        GU <- geno(vcf)$GU[,,1, drop=F]
+        TU <- geno(vcf)$TU[,,1, drop=F]
+        mcount0 <- data.frame(rn = rownames(vcf), Ref, Mut, A=AU, C=CU, G=GU, T=TU)
+        mcount <- pivot_longer(mcount0, cols = -c(1:3))
+        mcount <- separate(mcount, name, c("Allele", "TN"), sep = "\\.", extra = "drop")
+        AD_ref <- left_join(mcount0, mcount[,-c(2:3)], by = c("rn" = "rn", "Ref" = "Allele"))
+        AD_ref <- pivot_wider(AD_ref[, c("rn", "TN", "value")], id_cols = "rn", names_from = "TN")
+        AD_alt <- left_join(mcount0, mcount[,-c(2:3)], by = c("rn" = "rn", "Mut" = "Allele"))
+        AD_alt <- pivot_wider(AD_alt[, c("rn", "TN", "value")], id_cols = "rn", names_from = "TN")
+    }
     
     AD <- abind(data.frame(AD_ref[, c("NORMAL", "TUMOR")]),
                 data.frame(AD_alt[, c("NORMAL", "TUMOR")]), along = 3)
