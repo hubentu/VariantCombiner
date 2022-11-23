@@ -61,6 +61,12 @@ SomaticCombiner <- function(vcf1, vcf2, sources, GENO = c(GT = 1, DP = 1, AD = 1
     rownames(v1) <- pid1
     rownames(v2) <- pid2
 
+    ## remove duplicates
+    v1 <- v1[!duplicated(pid1)]
+    v2 <- v2[!duplicated(pid2)]
+    pid1 <- paste0(seqnames(v1), ":", start(v1), "_", ref(v1), "/", alt(v1))
+    pid2 <- paste0(seqnames(v2), ":", start(v2), "_", ref(v2), "/", alt(v2))
+    
     vars <- list(v1, v2)
     ids <- c(id_t, id_n)
     names(ids) <- c("TUMOR", "NORMAL")

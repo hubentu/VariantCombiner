@@ -92,7 +92,8 @@ sj2vcf <- function(v1, nid, ref = "b37", rfile = NULL){
 #' @export
 #' @importFrom Rsamtools scanFa
 sj2maf <- function(sj, ref = NULL){
-    varclass <- rep(NA, nrow(sj))
+    ## varclass <- rep(NA, nrow(sj))
+    varclass <- sj$class
     varclass[sj[,"class"] == "frameshift" & sj[,"ReferenceAllele"]=="-"] <- "Frame_Shift_Ins"
     varclass[sj[,"class"] == "frameshift" & sj[,"MutantAllele"]=="-"] <- "Frame_Shift_Del"
     varclass[sj[,"class"] == "splice"] <- "Splice_Site"

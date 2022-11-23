@@ -2,6 +2,7 @@
 
 export(MergeSomatic)
 export(SomaticCombiner)
+export(seurat_geno)
 export(sj2maf)
 export(sj2vcf)
 export(strelka_indel)
